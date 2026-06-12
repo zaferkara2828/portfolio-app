@@ -3,21 +3,430 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio App</title>
+  <title>Portfolio Dashboard (GitHub Pages)</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);
+      --text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+      --text-base:clamp(1rem,.95rem + .25vw,1.125rem);
+      --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-5:1.25rem;
+      --space-6:1.5rem;--space-8:2rem;
+      --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+      --color-surface-offset:#262421;--color-border:#393836;
+      --color-divider:#2b2a28;--color-text:#e1dfdb;--color-text-muted:#a4a19a;
+      --color-primary:#4f98a3;--color-success:#77b85a;
+      --color-error:#d163a7;--color-warning:#fdab43;
+      --radius-lg:.75rem;--radius-xl:1rem;--radius-full:9999px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.2);
+      --font-body:"Satoshi",Inter,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:var(--font-body);
+      font-size:var(--text-base);
+      background:var(--color-bg);
+      color:var(--color-text);
+      line-height:1.5;
+    }
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer;border:none;background:none}
+    .app{max-width:1500px;margin:0 auto;padding:var(--space-6)}
+    .panel{
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-sm);
+    }
+    .card{padding:var(--space-5)}
+    .topbar,.hero,.row,.toolbar,.inline{
+      display:flex;align-items:center;gap:var(--space-3)
+    }
+    .topbar,.hero{justify-content:space-between}
+    .hero{margin:var(--space-6) 0;align-items:flex-start}
+    .hero h1{font-size:var(--text-xl);margin-bottom:var(--space-2)}
+    .btn{
+      padding:.8rem 1rem;border-radius:var(--radius-lg);
+      font-size:var(--text-sm);font-weight:700;min-height:44px
+    }
+    .btn-primary{background:var(--color-primary);color:#fff}
+    .btn-secondary{
+      background:var(--color-surface-2);
+      border:1px solid var(--color-border)
+    }
+    .btn-danger{
+      border:1px solid var(--color-border);
+      color:var(--color-error)
+    }
+    .grid{
+      display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:var(--space-4);margin-bottom:var(--space-4)
+    }
+    .stat{padding:var(--space-5)}
+    .label{
+      font-size:var(--text-xs);color:var(--color-text-muted);
+      margin-bottom:var(--space-2)
+    }
+    .value{
+      font-size:1.6rem;font-weight:700;
+      font-variant-numeric:tabular-nums
+    }
+    .layout{
+      display:grid;grid-template-columns:1.3fr .9fr;
+      gap:var(--space-4)
+    }
+    .stack{display:grid;gap:var(--space-4)}
+    .card-header{
+      display:flex;justify-content:space-between;
+      align-items:center;margin-bottom:var(--space-4)
+    }
+    .form-grid{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:var(--space-4)
+    }
+    .field{display:grid;gap:var(--space-2)}
+    .field label{
+      font-size:var(--text-xs);color:var(--color-text-muted);
+      font-weight:700
+    }
+    .field input,.field select,.field textarea{
+      width:100%;min-height:44px;
+      background:var(--color-surface-2);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-lg);
+      padding:.85rem .9rem
+    }
+    .field textarea{min-height:100px;resize:vertical}
+    table{
+      width:100%;border-collapse:collapse;
+      font-size:var(--text-sm)
+    }
+    th,td{
+      padding:.8rem .7rem;text-align:left;
+      border-bottom:1px solid var(--color-divider);
+      vertical-align:top;font-variant-numeric:tabular-nums
+    }
+    th{
+      font-size:var(--text-xs);color:var(--color-text-muted);
+      text-transform:uppercase
+    }
+    .table-wrap{overflow:auto}
+    .pill{
+      display:inline-flex;align-items:center;
+      padding:.3rem .6rem;border-radius:var(--radius-full);
+      font-size:var(--text-xs);font-weight:700
+    }
+    .bg-green{background:rgba(119,184,90,.16);color:var(--color-success)}
+    .bg-warning{background:rgba(253,171,67,.16);color:var(--color-warning)}
+    .bg-red{background:rgba(209,99,167,.16);color:var(--color-error)}
+    .green{color:var(--color-success)}.red{color:var(--color-error)}
+    .muted{color:var(--color-text-muted)}
+    .chart-wrap{height:320px}
+    .watch-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:var(--space-3)
+    }
+    .watch-item{
+      padding:var(--space-4);
+      border:1px solid var(--color-divider);
+      border-radius:var(--radius-lg);
+      background:var(--color-surface-2)
+    }
+    .symbol{font-weight:700}
+    .toast{
+      position:fixed;right:20px;bottom:20px;
+      background:#f2efe8;color:#1d1a17;
+      padding:.9rem 1rem;border-radius:var(--radius-lg);
+      opacity:0;transform:translateY(10px);
+      transition:all .2s
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    .helper{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .hidden{display:none!important}
+    @media (max-width:1100px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .layout,.form-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .topbar,.hero,.toolbar{flex-direction:column;align-items:stretch}
+      .grid,.watch-grid{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
-  <h1>Portfolio App</h1>
-  <pre id="out">yükleniyor...</pre>
+  <div class="app">
+    <section class="topbar panel card">
+      <div>
+        <div class="muted" style="font-size:12px">
+          GitHub Pages sürümü – veri data/portfolio.json'dan okunur
+        </div>
+        <strong>Portfolio Dashboard</strong>
+      </div>
+      <div class="inline">
+        <button class="btn btn-primary" id="refreshFromJson">
+          Veriyi JSON'dan yükle
+        </button>
+      </div>
+    </section>
+
+    <section class="hero">
+      <div>
+        <h1>Ortak veriyle portföy görünümü</h1>
+        <p class="muted">
+          Tüm cihazlar bu URL'yi açtığında aynı data/portfolio.json dosyasını görür.
+        </p>
+      </div>
+      <div class="toolbar">
+        <span class="helper" id="dataStatus">Veri bekleniyor…</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel stat">
+        <div class="label">Açık pozisyon</div>
+        <div class="value" id="openCount">0</div>
+      </article>
+      <article class="panel stat">
+        <div class="label">Portföy değeri (TRY)</div>
+        <div class="value" id="portfolioValue">₺0</div>
+      </article>
+      <article class="panel stat">
+        <div class="label">Açık PnL (TRY)</div>
+        <div class="value" id="openPnl">₺0</div>
+      </article>
+      <article class="panel stat">
+        <div class="label">Breakout yapmayan</div>
+        <div class="value" id="nonBreakCount">0</div>
+      </article>
+      <article class="panel stat">
+        <div class="label">Geçmiş işlem sayısı</div>
+        <div class="value" id="pastCount">0</div>
+      </article>
+      <article class="panel stat">
+        <div class="label">Realize PnL (GETİRİ)</div>
+        <div class="value" id="realizedPnl">₺0</div>
+      </article>
+    </section>
+
+    <section class="layout">
+      <div class="stack">
+        <article class="panel card">
+          <div class="card-header">
+            <h3>Geçmiş işlemler (pastTrades)</h3>
+            <div class="helper">JSON içindeki pastTrades listesi</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Hisse</th>
+                  <th>Anapara</th>
+                  <th>Satış</th>
+                  <th>Getiri</th>
+                </tr>
+              </thead>
+              <tbody id="pastTradesTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel card">
+          <div class="card-header">
+            <h3>Açık pozisyonlar (positions)</h3>
+            <div class="helper">
+              JSON içindeki positions listesi – fiyatlar JSON'dan gelir
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sembol</th>
+                  <th>Miktar</th>
+                  <th>Maliyet</th>
+                  <th>Son fiyat</th>
+                  <th>PnL</th>
+                  <th>PnL %</th>
+                  <th>Breakout</th>
+                </tr>
+              </thead>
+              <tbody id="positionsTable"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="stack">
+        <article class="panel card">
+          <div class="card-header">
+            <h3>PnL grafiği</h3>
+            <span class="helper" id="chartStatus">JSON'dan veri bekleniyor</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="pnlChart"></canvas>
+          </div>
+        </article>
+
+        <article class="panel card">
+          <div class="card-header">
+            <h3>Ham JSON görüntüleme</h3>
+            <div class="helper">Debug için; JSON'un tamamını gösterir</div>
+          </div>
+          <pre id="rawJson" style="max-height:240px;overflow:auto;font-size:12px;background:var(--color-surface-2);padding:var(--space-3);border-radius:var(--radius-lg);border:1px solid var(--color-border)"></pre>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
-    fetch('./data/portfolio.json')
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById('out').textContent = JSON.stringify(data, null, 2);
-      })
-      .catch(err => {
-        document.getElementById('out').textContent = 'JSON okunamadı';
+    const state = {
+      positions: [],
+      pastTrades: [],
+      updatedAt: null
+    };
+
+    const els = {
+      openCount: document.getElementById('openCount'),
+      portfolioValue: document.getElementById('portfolioValue'),
+      openPnl: document.getElementById('openPnl'),
+      nonBreakCount: document.getElementById('nonBreakCount'),
+      pastCount: document.getElementById('pastCount'),
+      realizedPnl: document.getElementById('realizedPnl'),
+      pastTradesTable: document.getElementById('pastTradesTable'),
+      positionsTable: document.getElementById('positionsTable'),
+      dataStatus: document.getElementById('dataStatus'),
+      rawJson: document.getElementById('rawJson'),
+      chartStatus: document.getElementById('chartStatus'),
+      toast: document.getElementById('toast')
+    };
+
+    let chart;
+
+    function showToast(msg){
+      els.toast.textContent = msg;
+      els.toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(
+        () => els.toast.classList.remove('show'), 2200
+      );
+    }
+
+    function fmtCurrency(v, c='TRY'){
+      return new Intl.NumberFormat('tr-TR', {
+        style:'currency',currency:c,maximumFractionDigits:2
+      }).format(Number(v || 0));
+    }
+
+    function fmtNumber(v){
+      return new Intl.NumberFormat('tr-TR', {
+        maximumFractionDigits:2
+      }).format(Number(v || 0));
+    }
+
+    function renderPastTrades(){
+      const rows = state.pastTrades || [];
+      if(!rows.length){
+        els.pastTradesTable.innerHTML =
+          '<tr><td colspan="4" class="muted">Henüz geçmiş işlem yok.</td></tr>';
+        els.pastCount.textContent = 0;
+        els.realizedPnl.textContent = fmtCurrency(0);
+        return;
+      }
+      const total = rows.reduce(
+        (a,r)=>a+(Number(r.getiri)||0),0
+      );
+      els.pastCount.textContent = rows.length;
+      els.realizedPnl.textContent = fmtCurrency(total,'TRY');
+      els.pastTradesTable.innerHTML = rows.map(r=>`
+        <tr>
+          <td><strong>${r.hisse || '-'}</strong></td>
+          <td>${fmtCurrency(r.anapara || 0,'TRY')}</td>
+          <td>${fmtCurrency(r.satis || 0,'TRY')}</td>
+          <td class="${(r.getiri || 0)>=0 ? 'green':'red'}">
+            ${fmtCurrency(r.getiri || 0,'TRY')}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPositions(){
+      const rows = state.positions || [];
+      if(!rows.length){
+        els.positionsTable.innerHTML =
+          '<tr><td colspan="7" class="muted">Henüz açık pozisyon yok.</td></tr>';
+        els.openCount.textContent = 0;
+        els.openPnl.textContent = fmtCurrency(0);
+        els.portfolioValue.textContent = fmtCurrency(0);
+        els.nonBreakCount.textContent = 0;
+        renderChart([]);
+        return;
+      }
+
+      const enriched = rows.map(p => {
+        const qty = Number(p.qty || 0);
+        const avgCost = Number(p.avgCost || 0);
+        const last = Number(p.lastPrice || 0);
+        const currency = p.currency || 'TRY';
+        const costVal = qty * avgCost;
+        const curVal = qty * last;
+        const pnl = curVal - costVal;
+        const pnlPct = costVal === 0 ? null : (pnl / costVal) * 100;
+        return { ...p, qty, avgCost, lastPrice:last,
+                 currency, pnl, pnlPct, costValue:costVal,
+                 currentValue:curVal };
       });
-  </script>
-</body>
-</html>
+
+      const totalPnl = enriched.reduce(
+        (a,p)=>a+(p.pnl || 0),0
+      );
+      const totalValue = enriched.reduce(
+        (a,p)=>a+(p.currentValue || 0),0
+      );
+      const nonBreak = enriched.filter(
+        p => p.breakout === 'no'
+      ).length;
+
+      els.openCount.textContent = enriched.length;
+      els.openPnl.textContent = fmtCurrency(totalPnl,'TRY');
+      els.portfolioValue.textContent = fmtCurrency(totalValue,'TRY');
+      els.nonBreakCount.textContent = nonBreak;
+
+      els.positionsTable.innerHTML = enriched.map(p => `
+        <tr>
+          <td><strong>${p.symbol || '-'}</strong>
+            <div class="helper">${p.market || ''}</div>
+          </td>
+          <td>${fmtNumber(p.qty)}</td>
+          <td>${fmtCurrency(p.avgCost,p.currency)}</td>
+          <td>${fmtCurrency(p.lastPrice,p.currency)}</td>
+          <td class="${(p.pnl || 0)>=0?'green':'red'}">
+            ${fmtCurrency(p.pnl,'TRY')}
+          </td>
+          <td class="${(p.pnlPct || 0)>=0?'green':'red'}">
+            ${p.pnlPct == null ? '-' : p.pnlPct.toFixed(2)+'%'}
+          </td>
+          <td>
+            <span class="pill ${
+              p.breakout==='yes'?'bg-green':'bg-warning'
+            }">
+              ${p.breakout==='yes'?'Yaptı':'Yapmadı'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+
+      renderChart(enriched);
+    }
+
+    function renderChart(items){
+      const ctx = document.getElementById('pnlChart');
+      if(chart) chart.destroy();
+      if(!items || !items.length){
+        els.chartStatus.textContent = 'Grafik için veri yok';
+        chart = 
