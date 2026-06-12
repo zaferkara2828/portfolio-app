@@ -6,7 +6,18 @@
   <title>Portfolio App</title>
 </head>
 <body>
-  <h1>Portfolio App yayında</h1>
-  <p>Bir sonraki adımda dashboard'u buraya koyacağız.</p>
+  <h1>Portfolio App</h1>
+  <pre id="out">yükleniyor...</pre>
+
+  <script>
+    fetch('./data/portfolio.json')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(err => {
+        document.getElementById('out').textContent = 'JSON okunamadı';
+      });
+  </script>
 </body>
 </html>
