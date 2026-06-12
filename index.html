@@ -58,10 +58,6 @@
       background:var(--color-surface-2);
       border:1px solid var(--color-border)
     }
-    .btn-danger{
-      border:1px solid var(--color-border);
-      color:var(--color-error)
-    }
     .grid{
       display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
       gap:var(--space-4);margin-bottom:var(--space-4)
@@ -84,23 +80,6 @@
       display:flex;justify-content:space-between;
       align-items:center;margin-bottom:var(--space-4)
     }
-    .form-grid{
-      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:var(--space-4)
-    }
-    .field{display:grid;gap:var(--space-2)}
-    .field label{
-      font-size:var(--text-xs);color:var(--color-text-muted);
-      font-weight:700
-    }
-    .field input,.field select,.field textarea{
-      width:100%;min-height:44px;
-      background:var(--color-surface-2);
-      border:1px solid var(--color-border);
-      border-radius:var(--radius-lg);
-      padding:.85rem .9rem
-    }
-    .field textarea{min-height:100px;resize:vertical}
     table{
       width:100%;border-collapse:collapse;
       font-size:var(--text-sm)
@@ -122,21 +101,10 @@
     }
     .bg-green{background:rgba(119,184,90,.16);color:var(--color-success)}
     .bg-warning{background:rgba(253,171,67,.16);color:var(--color-warning)}
-    .bg-red{background:rgba(209,99,167,.16);color:var(--color-error)}
-    .green{color:var(--color-success)}.red{color:var(--color-error)}
+    .green{color:var(--color-success)}
+    .red{color:var(--color-error)}
     .muted{color:var(--color-text-muted)}
     .chart-wrap{height:320px}
-    .watch-grid{
-      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:var(--space-3)
-    }
-    .watch-item{
-      padding:var(--space-4);
-      border:1px solid var(--color-divider);
-      border-radius:var(--radius-lg);
-      background:var(--color-surface-2)
-    }
-    .symbol{font-weight:700}
     .toast{
       position:fixed;right:20px;bottom:20px;
       background:#f2efe8;color:#1d1a17;
@@ -146,14 +114,13 @@
     }
     .toast.show{opacity:1;transform:translateY(0)}
     .helper{font-size:var(--text-xs);color:var(--color-text-muted)}
-    .hidden{display:none!important}
     @media (max-width:1100px){
       .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .layout,.form-grid{grid-template-columns:1fr}
+      .layout{grid-template-columns:1fr}
     }
     @media (max-width:760px){
       .topbar,.hero,.toolbar{flex-direction:column;align-items:stretch}
-      .grid,.watch-grid{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -162,14 +129,12 @@
     <section class="topbar panel card">
       <div>
         <div class="muted" style="font-size:12px">
-          GitHub Pages sürümü – veri data/portfolio.json'dan okunur
+          GitHub Pages sürümü – veri ortak JSON dosyasından okunur
         </div>
         <strong>Portfolio Dashboard</strong>
       </div>
       <div class="inline">
-        <button class="btn btn-primary" id="refreshFromJson">
-          Veriyi JSON'dan yükle
-        </button>
+        <button class="btn btn-primary" id="refreshFromJson">Veriyi JSON'dan yükle</button>
       </div>
     </section>
 
@@ -177,7 +142,7 @@
       <div>
         <h1>Ortak veriyle portföy görünümü</h1>
         <p class="muted">
-          Tüm cihazlar bu URL'yi açtığında aynı data/portfolio.json dosyasını görür.
+          Tüm cihazlar aynı linkten aynı JSON kaynağını görür.
         </p>
       </div>
       <div class="toolbar">
@@ -216,7 +181,7 @@
       <div class="stack">
         <article class="panel card">
           <div class="card-header">
-            <h3>Geçmiş işlemler (pastTrades)</h3>
+            <h3>Geçmiş işlemler</h3>
             <div class="helper">JSON içindeki pastTrades listesi</div>
           </div>
           <div class="table-wrap">
@@ -236,10 +201,8 @@
 
         <article class="panel card">
           <div class="card-header">
-            <h3>Açık pozisyonlar (positions)</h3>
-            <div class="helper">
-              JSON içindeki positions listesi – fiyatlar JSON'dan gelir
-            </div>
+            <h3>Açık pozisyonlar</h3>
+            <div class="helper">JSON içindeki positions listesi</div>
           </div>
           <div class="table-wrap">
             <table>
@@ -273,10 +236,10 @@
 
         <article class="panel card">
           <div class="card-header">
-            <h3>Ham JSON görüntüleme</h3>
-            <div class="helper">Debug için; JSON'un tamamını gösterir</div>
+            <h3>Ham JSON</h3>
+            <div class="helper">Debug için görüntüleme</div>
           </div>
-          <pre id="rawJson" style="max-height:240px;overflow:auto;font-size:12px;background:var(--color-surface-2);padding:var(--space-3);border-radius:var(--radius-lg);border:1px solid var(--color-border)"></pre>
+          <pre id="rawJson" style="max-height:240px;overflow:auto;font-size:12px;background:var(--color-surface-2);padding:12px;border-radius:12px;border:1px solid var(--color-border)"></pre>
         </article>
       </div>
     </section>
@@ -312,20 +275,22 @@
       els.toast.textContent = msg;
       els.toast.classList.add('show');
       clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(
-        () => els.toast.classList.remove('show'), 2200
-      );
+      showToast.timer = setTimeout(() => {
+        els.toast.classList.remove('show');
+      }, 2200);
     }
 
     function fmtCurrency(v, c='TRY'){
       return new Intl.NumberFormat('tr-TR', {
-        style:'currency',currency:c,maximumFractionDigits:2
+        style: 'currency',
+        currency: c,
+        maximumFractionDigits: 2
       }).format(Number(v || 0));
     }
 
     function fmtNumber(v){
       return new Intl.NumberFormat('tr-TR', {
-        maximumFractionDigits:2
+        maximumFractionDigits: 2
       }).format(Number(v || 0));
     }
 
@@ -333,22 +298,22 @@
       const rows = state.pastTrades || [];
       if(!rows.length){
         els.pastTradesTable.innerHTML =
-          '<tr><td colspan="4" class="muted">Henüz geçmiş işlem yok.</td></tr>';
+          '<tr><td colspan=\"4\" class=\"muted\">Henüz geçmiş işlem yok.</td></tr>';
         els.pastCount.textContent = 0;
         els.realizedPnl.textContent = fmtCurrency(0);
         return;
       }
-      const total = rows.reduce(
-        (a,r)=>a+(Number(r.getiri)||0),0
-      );
+
+      const total = rows.reduce((a,r)=>a+(Number(r.getiri)||0),0);
       els.pastCount.textContent = rows.length;
       els.realizedPnl.textContent = fmtCurrency(total,'TRY');
-      els.pastTradesTable.innerHTML = rows.map(r=>`
+
+      els.pastTradesTable.innerHTML = rows.map(r => `
         <tr>
           <td><strong>${r.hisse || '-'}</strong></td>
           <td>${fmtCurrency(r.anapara || 0,'TRY')}</td>
           <td>${fmtCurrency(r.satis || 0,'TRY')}</td>
-          <td class="${(r.getiri || 0)>=0 ? 'green':'red'}">
+          <td class="${(r.getiri || 0) >= 0 ? 'green' : 'red'}">
             ${fmtCurrency(r.getiri || 0,'TRY')}
           </td>
         </tr>
@@ -359,7 +324,7 @@
       const rows = state.positions || [];
       if(!rows.length){
         els.positionsTable.innerHTML =
-          '<tr><td colspan="7" class="muted">Henüz açık pozisyon yok.</td></tr>';
+          '<tr><td colspan=\"7\" class=\"muted\">Henüz açık pozisyon yok.</td></tr>';
         els.openCount.textContent = 0;
         els.openPnl.textContent = fmtCurrency(0);
         els.portfolioValue.textContent = fmtCurrency(0);
@@ -377,20 +342,22 @@
         const curVal = qty * last;
         const pnl = curVal - costVal;
         const pnlPct = costVal === 0 ? null : (pnl / costVal) * 100;
-        return { ...p, qty, avgCost, lastPrice:last,
-                 currency, pnl, pnlPct, costValue:costVal,
-                 currentValue:curVal };
+        return {
+          ...p,
+          qty,
+          avgCost,
+          lastPrice: last,
+          currency,
+          pnl,
+          pnlPct,
+          costValue: costVal,
+          currentValue: curVal
+        };
       });
 
-      const totalPnl = enriched.reduce(
-        (a,p)=>a+(p.pnl || 0),0
-      );
-      const totalValue = enriched.reduce(
-        (a,p)=>a+(p.currentValue || 0),0
-      );
-      const nonBreak = enriched.filter(
-        p => p.breakout === 'no'
-      ).length;
+      const totalPnl = enriched.reduce((a,p)=>a+(p.pnl || 0),0);
+      const totalValue = enriched.reduce((a,p)=>a+(p.currentValue || 0),0);
+      const nonBreak = enriched.filter(p => p.breakout === 'no').length;
 
       els.openCount.textContent = enriched.length;
       els.openPnl.textContent = fmtCurrency(totalPnl,'TRY');
@@ -399,23 +366,22 @@
 
       els.positionsTable.innerHTML = enriched.map(p => `
         <tr>
-          <td><strong>${p.symbol || '-'}</strong>
+          <td>
+            <strong>${p.symbol || '-'}</strong>
             <div class="helper">${p.market || ''}</div>
           </td>
           <td>${fmtNumber(p.qty)}</td>
           <td>${fmtCurrency(p.avgCost,p.currency)}</td>
           <td>${fmtCurrency(p.lastPrice,p.currency)}</td>
-          <td class="${(p.pnl || 0)>=0?'green':'red'}">
+          <td class="${(p.pnl || 0) >= 0 ? 'green' : 'red'}">
             ${fmtCurrency(p.pnl,'TRY')}
           </td>
-          <td class="${(p.pnlPct || 0)>=0?'green':'red'}">
-            ${p.pnlPct == null ? '-' : p.pnlPct.toFixed(2)+'%'}
+          <td class="${(p.pnlPct || 0) >= 0 ? 'green' : 'red'}">
+            ${p.pnlPct == null ? '-' : p.pnlPct.toFixed(2) + '%'}
           </td>
           <td>
-            <span class="pill ${
-              p.breakout==='yes'?'bg-green':'bg-warning'
-            }">
-              ${p.breakout==='yes'?'Yaptı':'Yapmadı'}
+            <span class="pill ${p.breakout === 'yes' ? 'bg-green' : 'bg-warning'}">
+              ${p.breakout === 'yes' ? 'Yaptı' : 'Yapmadı'}
             </span>
           </td>
         </tr>
@@ -427,6 +393,85 @@
     function renderChart(items){
       const ctx = document.getElementById('pnlChart');
       if(chart) chart.destroy();
-      if(!items || !items.length){
+
+      if(!items.length){
         els.chartStatus.textContent = 'Grafik için veri yok';
-        chart = 
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['-'],
+            datasets: [{ data: [0] }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+        return;
+      }
+
+      els.chartStatus.textContent = 'PnL TRY bazında';
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: items.map(i => i.symbol),
+          datasets: [{
+            data: items.map(i => +(i.pnl || 0).toFixed(2)),
+            backgroundColor: items.map(i =>
+              (i.pnl || 0) >= 0 ? '#77b85a' : '#d163a7'
+            ),
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function renderAll(){
+      renderPastTrades();
+      renderPositions();
+      els.rawJson.textContent = JSON.stringify({
+        updatedAt: state.updatedAt,
+        positions: state.positions,
+        pastTrades: state.pastTrades
+      }, null, 2);
+    }
+
+    async function loadFromJson(){
+      els.dataStatus.textContent = 'JSON yükleniyor…';
+      try{
+        const res = await fetch('/portfolio-app/data/portfolio.json', {
+          cache: 'no-store'
+        });
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+
+        const data = await res.json();
+        state.positions = data.positions || [];
+        state.pastTrades = data.pastTrades || [];
+        state.updatedAt = data.updatedAt || null;
+
+        els.dataStatus.textContent =
+          'Son güncelleme: ' + (state.updatedAt || 'bilinmiyor');
+
+        showToast('JSON yüklendi.');
+        renderAll();
+      }catch(e){
+        console.error(e);
+        els.dataStatus.textContent = 'JSON okunamadı';
+        showToast('JSON okunamadı.');
+      }
+    }
+
+    document
+      .getElementById('refreshFromJson')
+      .addEventListener('click', loadFromJson);
+
+    loadFromJson();
+  </script>
+</body>
+</html>
