@@ -1,398 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Tracker</title>
   <style>
-    :root{
-      --bg:#171614;--surface:#1c1b19;--surface2:#201f1d;--border:#393836;
-      --text:#e1dfdb;--muted:#a4a19a;--primary:#4f98a3;--success:#77b85a;--danger:#d163a7;
-      --warning:#fdab43;--radius:16px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}
-    .app{max-width:1400px;margin:0 auto;padding:24px}
-    .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-    .muted{color:var(--muted)}
-    h1,h2,h3,p{margin:0}
-    .hero{margin:24px 0;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
-    .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:16px}
-    .stat{padding:18px}
-    .label{font-size:12px;color:var(--muted);margin-bottom:8px}
-    .value{font-size:28px;font-weight:700}
-    .layout{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
-    .stack{display:grid;gap:16px}
-    .card{padding:20px}
-    .head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-    .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    input,select,button{font:inherit}
-    input,select{
-      width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);
-      background:var(--surface2);color:var(--text);outline:none
-    }
-    .btn{
-      border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer
-    }
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-    .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--border)}
-    .btn-sm{padding:8px 12px;border-radius:10px;font-size:13px}
-    .tablewrap{overflow:auto}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:12px 10px;border-bottom:1px solid #2b2a28;text-align:left;vertical-align:top}
-    th{color:var(--muted);font-size:12px;text-transform:uppercase}
-    .green{color:var(--success)} .red{color:var(--danger)}
-    .pill{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
-    .yes{background:rgba(119,184,90,.16);color:var(--success)}
-    .no{background:rgba(253,171,67,.16);color:var(--warning)}
-    .chartwrap{height:320px}
-    .toast{
-      position:fixed;right:20px;bottom:20px;background:#f2efe8;color:#1d1a17;
-      padding:10px 14px;border-radius:12px;opacity:0;transform:translateY(10px);transition:.2s
-    }
-    .toast.show{opacity:1;transform:translateY(0)}
-    .small{font-size:12px;color:var(--muted)}
-    @media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}.layout,.formgrid{grid-template-columns:1fr}}
-    @media (max-width:700px){.grid{grid-template-columns:1fr}}
+    :root{--bg:#0f172a;--panel:#111827;--card:#1f2937;--text:#e5e7eb;--muted:#94a3b8;--accent:#22c55e;--danger:#ef4444;--line:#334155;--input:#0b1220}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#020617,#0f172a 40%,#111827);color:var(--text)}
+    .wrap{max-width:1400px;margin:0 auto;padding:24px} h1{margin:0 0 8px;font-size:28px} p{margin:0 0 16px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:20px}@media (max-width:1100px){.grid{grid-template-columns:1fr}}
+    .card{background:rgba(17,24,39,.92);border:1px solid rgba(51,65,85,.8);border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.18);backdrop-filter:blur(10px)}
+    .card h2{margin:0 0 14px;font-size:18px} .row{display:grid;gap:10px;margin-bottom:12px}
+    label{font-size:12px;color:var(--muted)} input,select,textarea,button{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--input);color:var(--text);padding:11px 12px;font:inherit}
+    textarea{min-height:86px;resize:vertical} input::placeholder,textarea::placeholder{color:#64748b}
+    button{cursor:pointer;font-weight:600} .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary{background:linear-gradient(135deg,#16a34a,#22c55e);border:none;color:#052e16}.ghost{background:#0b1220}.danger{background:linear-gradient(135deg,#b91c1c,#ef4444);border:none;color:#fff}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.toolbar button{width:auto;padding:10px 14px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+    .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}.stat .k{font-size:12px;color:var(--muted)} .stat .v{margin-top:6px;font-size:22px;font-weight:700}
+    .tabs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}.tab{width:auto}.tab.active{background:#1d4ed8;border-color:#60a5fa}
+    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:16px} th,td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;font-size:14px} th{color:#cbd5e1;font-size:12px;text-transform:uppercase;letter-spacing:.04em;background:#0b1220;position:sticky;top:0}
+    .table-wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:16px} .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#0b1220;border:1px solid var(--line);font-size:12px;color:#cbd5e1}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{width:auto;padding:8px 10px;font-size:12px}
+    .pos{color:#86efac}.neg{color:#fca5a5}.muted{color:var(--muted)} .empty{padding:28px;text-align:center;color:var(--muted)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px} @media (max-width:560px){.split{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="app">
-    <section class="panel top">
-      <div>
-        <div class="small">Portfolio App</div>
-        <h2>Portföy Dashboard</h2>
-      </div>
-      <div class="top">
-        <button class="btn btn-primary" id="exportJson">JSON indir</button>
-        <button class="btn btn-secondary" id="resetAll">Tümünü sıfırla</button>
-      </div>
-    </section>
-
-    <section class="hero">
-      <div>
-        <h1>Ortak veriye bağlı portföy görünümü</h1>
-        <p class="muted">Pozisyon ekle / çıkar işlemleri tarayıcıda saklanır.</p>
-      </div>
-      <div class="small" id="status">Hazır</div>
-    </section>
-
-    <section class="grid">
-      <article class="panel stat"><div class="label">Açık pozisyon</div><div class="value" id="openCount">0</div></article>
-      <article class="panel stat"><div class="label">Portföy değeri</div><div class="value" id="portfolioValue">₺0,00</div></article>
-      <article class="panel stat"><div class="label">Açık PnL</div><div class="value" id="openPnl">₺0,00</div></article>
-      <article class="panel stat"><div class="label">Breakout yapmayan</div><div class="value" id="nonBreakCount">0</div></article>
-      <article class="panel stat"><div class="label">Geçmiş işlem</div><div class="value" id="pastCount">0</div></article>
-      <article class="panel stat"><div class="label">Realize PnL</div><div class="value" id="realizedPnl">₺0,00</div></article>
-    </section>
-
-    <section class="layout">
-      <div class="stack">
-        <article class="panel card">
-          <div class="head">
-            <div>
-              <h3>Yeni pozisyon ekle</h3>
-              <div class="small">Formdan eklenenler tablodan silinebilir.</div>
-            </div>
+  <div class="wrap">
+    <h1>Portfolio Tracker</h1>
+    <p>Open positions, trade history, quick stats, edit/delete, JSON import/export, and local persistence.</p>
+    <div class="grid">
+      <section class="card">
+        <h2>Yeni kayıt</h2>
+        <div class="tabs">
+          <button class="tab active" data-mode="open">Açık Pozisyon</button>
+          <button class="tab" data-mode="trade">Geçmiş İşlem</button>
+        </div>
+        <form id="entryForm">
+          <input type="hidden" id="mode" value="open" />
+          <div class="row"><label>Varlık</label><input id="asset" placeholder="BTC, ETH, XAUUSD, AAPL..." required></div>
+          <div class="split">
+            <div class="row"><label>Miktar</label><input id="qty" type="number" step="any" placeholder="0.00" required></div>
+            <div class="row"><label>Fiyat</label><input id="price" type="number" step="any" placeholder="0.00" required></div>
           </div>
-          <div class="formgrid">
-            <div><input id="symbol" placeholder="Sembol (ASELS)"></div>
-            <div><input id="market" placeholder="Piyasa (BIST)"></div>
-            <div><input id="qty" type="number" placeholder="Adet"></div>
-            <div><input id="avgCost" type="number" step="0.01" placeholder="Ortalama maliyet"></div>
-            <div><input id="lastPrice" type="number" step="0.01" placeholder="Son fiyat"></div>
-            <div>
-              <select id="currency">
-                <option value="TRY">TRY</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
-            </div>
-            <div>
-              <select id="breakout">
-                <option value="no">Breakout yok</option>
-                <option value="yes">Breakout var</option>
-              </select>
-            </div>
-            <div>
-              <button class="btn btn-primary" id="addPosition">Pozisyon ekle</button>
-            </div>
-            <div>
-              <button class="btn btn-secondary" id="seedDemo">Demo veri ekle</button>
-            </div>
+          <div class="split">
+            <div class="row"><label>Tarih</label><input id="date" type="date" required></div>
+            <div class="row"><label>Tür</label><select id="side"><option>Long</option><option>Short</option></select></div>
           </div>
-        </article>
-
-        <article class="panel card">
-          <div class="head">
-            <div>
-              <h3>Açık pozisyonlar</h3>
-              <div class="small">positions listesi</div>
-            </div>
+          <div class="row"><label>Komisyon</label><input id="fee" type="number" step="any" placeholder="0.00" value="0"></div>
+          <div class="row"><label>Not</label><textarea id="note" placeholder="İsteğe bağlı not"></textarea></div>
+          <div class="btns">
+            <button class="primary" type="submit">Kaydet</button>
+            <button class="ghost" type="button" id="demoBtn">Demo Veri</button>
           </div>
-          <div class="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Sembol</th><th>Piyasa</th><th>Adet</th><th>Maliyet</th><th>Son fiyat</th><th>PnL</th><th>PnL %</th><th>Breakout</th><th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody id="positionsTable"></tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="panel card">
-          <div class="head">
-            <div>
-              <h3>Geçmiş işlemler</h3>
-              <div class="small">pastTrades listesi</div>
-            </div>
-          </div>
-          <div class="tablewrap">
-            <table>
-              <thead>
-                <tr><th>Hisse</th><th>Anapara</th><th>Satış</th><th>Getiri</th><th>İşlem</th></tr>
-              </thead>
-              <tbody id="pastTradesTable"></tbody>
-            </table>
-          </div>
-        </article>
-      </div>
-
-      <div class="stack">
-        <article class="panel card">
-          <div class="head">
-            <h3>PnL grafiği</h3>
-            <span class="small" id="chartStatus">Grafik hazır</span>
-          </div>
-          <div class="chartwrap"><canvas id="pnlChart"></canvas></div>
-        </article>
-
-        <article class="panel card">
-          <div class="head">
-            <h3>JSON görünümü</h3>
-            <button class="btn btn-secondary btn-sm" id="copyJson">Kopyala</button>
-          </div>
-          <pre id="rawJson" style="max-height:320px;overflow:auto;font-size:12px;background:var(--surface2);padding:12px;border-radius:12px;border:1px solid var(--border)"></pre>
-        </article>
-      </div>
-    </section>
+        </form>
+        <div style="height:14px"></div>
+        <div class="btns">
+          <button class="ghost" id="exportBtn" type="button">JSON İndir</button>
+          <button class="ghost" id="importBtn" type="button">JSON Yükle</button>
+        </div>
+        <input id="importFile" type="file" accept="application/json" hidden />
+        <div style="height:10px"></div>
+        <button class="danger" id="clearBtn" type="button">Tüm Veriyi Sil</button>
+      </section>
+      <section class="card">
+        <h2>Özet</h2>
+        <div class="stats">
+          <div class="stat"><div class="k">Açık Pozisyon</div><div class="v" id="stOpen">0</div></div>
+          <div class="stat"><div class="k">İşlem Sayısı</div><div class="v" id="stTrade">0</div></div>
+          <div class="stat"><div class="k">Toplam Maliyet</div><div class="v" id="stCost">0</div></div>
+          <div class="stat"><div class="k">Tahmini P/L</div><div class="v" id="stPL">0</div></div>
+        </div>
+        <div class="toolbar">
+          <button class="tab active" data-view="all" type="button">Hepsi</button>
+          <button class="tab" data-view="open" type="button">Açık</button>
+          <button class="tab" data-view="trade" type="button">Geçmiş</button>
+          <input id="search" placeholder="Ara: varlık, not, tarih..." style="max-width:260px" />
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tip</th><th>Varlık</th><th>Tür</th><th>Miktar</th><th>Fiyat</th><th>Komisyon</th><th>Tarih</th><th>Not</th><th>İşlem</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table></div>
+      </section>
+    </div>
   </div>
-
-  <div class="toast" id="toast"></div>
-
   <script>
-    const KEY = 'portfolio_app_data_v1';
-    const state = {
-      positions: [],
-      pastTrades: [],
-      updatedAt: new Date().toISOString().slice(0,10)
-    };
-    let chart;
-
-    const el = id => document.getElementById(id);
-    const fmtCurrency = (v,c='TRY') => new Intl.NumberFormat('tr-TR',{style:'currency',currency:c,maximumFractionDigits:2}).format(Number(v||0));
-    const fmtNumber = v => new Intl.NumberFormat('tr-TR',{maximumFractionDigits:2}).format(Number(v||0));
-
-    function toast(msg){
-      const t = el('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(toast._);
-      toast._ = setTimeout(()=>t.classList.remove('show'),1800);
-    }
-
-    function save(){
-      localStorage.setItem(KEY, JSON.stringify(state));
-      el('status').textContent = 'Kaydedildi: ' + new Date().toLocaleTimeString('tr-TR');
-      renderAll();
-    }
-
-    function load(){
-      const raw = localStorage.getItem(KEY);
-      if(raw){
-        try{
-          const data = JSON.parse(raw);
-          state.positions = Array.isArray(data.positions) ? data.positions : [];
-          state.pastTrades = Array.isArray(data.pastTrades) ? data.pastTrades : [];
-          state.updatedAt = data.updatedAt || state.updatedAt;
-        }catch(e){}
-      }
-      renderAll();
-    }
-
-    function calc(){
-      const enriched = state.positions.map(p=>{
-        const qty = Number(p.qty||0);
-        const avgCost = Number(p.avgCost||0);
-        const lastPrice = Number(p.lastPrice||0);
-        const currentValue = qty * lastPrice;
-        const costValue = qty * avgCost;
-        const pnl = currentValue - costValue;
-        const pnlPct = costValue ? (pnl / costValue) * 100 : 0;
-        return {...p, qty, avgCost, lastPrice, currentValue, costValue, pnl, pnlPct};
-      });
-      const totalValue = enriched.reduce((a,p)=>a + p.currentValue, 0);
-      const totalPnl = enriched.reduce((a,p)=>a + p.pnl, 0);
-      const nonBreak = enriched.filter(p => p.breakout === 'no').length;
-      const realized = state.pastTrades.reduce((a,p)=>a + Number(p.getiri||0), 0);
-      return {enriched,totalValue,totalPnl,nonBreak,realized};
-    }
-
-    function renderPositions(rows){
-      const tbody = el('positionsTable');
-      if(!rows.length){
-        tbody.innerHTML = '<tr><td colspan="9" class="muted">Henüz açık pozisyon yok.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = rows.map((p,i)=>`
-        <tr>
-          <td><strong>${p.symbol || '-'}</strong></td>
-          <td>${p.market || '-'}</td>
-          <td>${fmtNumber(p.qty)}</td>
-          <td>${fmtCurrency(p.avgCost,p.currency)}</td>
-          <td>${fmtCurrency(p.lastPrice,p.currency)}</td>
-          <td class="${p.pnl>=0?'green':'red'}">${fmtCurrency(p.pnl,'TRY')}</td>
-          <td class="${p.pnlPct>=0?'green':'red'}">${p.pnlPct.toFixed(2)}%</td>
-          <td><span class="pill ${p.breakout==='yes'?'yes':'no'}">${p.breakout==='yes'?'Yaptı':'Yapmadı'}</span></td>
-          <td><button class="btn btn-danger btn-sm" data-delpos="${i}">Sil</button></td>
-        </tr>
-      `).join('');
-      tbody.querySelectorAll('[data-delpos]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          state.positions.splice(Number(btn.dataset.delpos),1);
-          save();
-          toast('Pozisyon silindi');
-        });
-      });
-    }
-
-    function renderPastTrades(){
-      const tbody = el('pastTradesTable');
-      if(!state.pastTrades.length){
-        tbody.innerHTML = '<tr><td colspan="5" class="muted">Henüz geçmiş işlem yok.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = state.pastTrades.map((p,i)=>`
-        <tr>
-          <td><strong>${p.hisse || '-'}</strong></td>
-          <td>${fmtCurrency(p.anapara||0,'TRY')}</td>
-          <td>${fmtCurrency(p.satis||0,'TRY')}</td>
-          <td class="${Number(p.getiri||0)>=0?'green':'red'}">${fmtCurrency(p.getiri||0,'TRY')}</td>
-          <td><button class="btn btn-danger btn-sm" data-deltrade="${i}">Sil</button></td>
-        </tr>
-      `).join('');
-      tbody.querySelectorAll('[data-deltrade]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          state.pastTrades.splice(Number(btn.dataset.deltrade),1);
-          save();
-          toast('Geçmiş işlem silindi');
-        });
-      });
-    }
-
-    function renderChart(rows){
-      const ctx = el('pnlChart');
-      if(chart) chart.destroy();
-      chart = new Chart(ctx,{
-        type:'bar',
-        data:{
-          labels: rows.length ? rows.map(p=>p.symbol) : ['-'],
-          datasets:[{
-            data: rows.length ? rows.map(p=>+(p.pnl||0).toFixed(2)) : [0],
-            backgroundColor: rows.length ? rows.map(p=>(p.pnl||0)>=0 ? '#77b85a' : '#d163a7') : ['#4f98a3'],
-            borderRadius: 8
-          }]
-        },
-        options:{
-          responsive:true,
-          maintainAspectRatio:false,
-          plugins:{legend:{display:false}}
-        }
-      });
-    }
-
-    function renderAll(){
-      const {enriched,totalValue,totalPnl,nonBreak,realized} = calc();
-      el('openCount').textContent = state.positions.length;
-      el('portfolioValue').textContent = fmtCurrency(totalValue,'TRY');
-      el('openPnl').textContent = fmtCurrency(totalPnl,'TRY');
-      el('nonBreakCount').textContent = nonBreak;
-      el('pastCount').textContent = state.pastTrades.length;
-      el('realizedPnl').textContent = fmtCurrency(realized,'TRY');
-      renderPositions(enriched);
-      renderPastTrades();
-      renderChart(enriched);
-      el('rawJson').textContent = JSON.stringify(state, null, 2);
-      el('chartStatus').textContent = enriched.length ? 'PnL TRY bazında' : 'Veri yok';
-    }
-
-    function getForm(){
-      return {
-        symbol: el('symbol').value.trim(),
-        market: el('market').value.trim(),
-        qty: Number(el('qty').value || 0),
-        avgCost: Number(el('avgCost').value || 0),
-        lastPrice: Number(el('lastPrice').value || 0),
-        currency: el('currency').value,
-        breakout: el('breakout').value
-      };
-    }
-
-    el('addPosition').addEventListener('click', ()=>{
-      const p = getForm();
-      if(!p.symbol || !p.market || !p.qty){
-        toast('Sembol, piyasa ve adet zorunlu');
-        return;
-      }
-      state.positions.unshift(p);
-      save();
-      toast('Pozisyon eklendi');
-      ['symbol','market','qty','avgCost','lastPrice'].forEach(id=>el(id).value='');
-      el('currency').value = 'TRY';
-      el('breakout').value = 'no';
-    });
-
-    el('seedDemo').addEventListener('click', ()=>{
-      state.positions = [
-        {symbol:'ASELS',market:'BIST',qty:100,avgCost:42.50,lastPrice:45.10,currency:'TRY',breakout:'yes'},
-        {symbol:'THYAO',market:'BIST',qty:50,avgCost:289.20,lastPrice:301.80,currency:'TRY',breakout:'no'}
-      ];
-      state.pastTrades = [
-        {hisse:'KCHOL',anapara:10000,satis:11250,getiri:1250},
-        {hisse:'SISE',anapara:8000,satis:7600,getiri:-400}
-      ];
-      save();
-      toast('Demo veri yüklendi');
-    });
-
-    el('resetAll').addEventListener('click', ()=>{
-      if(!confirm('Tüm veriler silinsin mi?')) return;
-      state.positions = [];
-      state.pastTrades = [];
-      save();
-      toast('Veriler temizlendi');
-    });
-
-    el('exportJson').addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'portfolio.json';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
-
-    el('copyJson').addEventListener('click', async ()=>{
-      await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
-      toast('JSON kopyalandı');
-    });
-
-    load();
+    const K='portfolio_tracker_v3';
+    const $=s=>document.querySelector(s);
+    const $all=s=>Array.from(document.querySelectorAll(s));
+    let state=JSON.parse(localStorage.getItem(K)||'{"open":[],"trade":[]}');
+    let view='all'; let edit=null;
+    const fmt=n=>Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:8});
+    const save=()=>localStorage.setItem(K,JSON.stringify(state));
+    const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+    const setToday=()=>$('#date').value=new Date().toISOString().slice(0,10);
+    function resetForm(){edit=null;$('#entryForm button[type="submit"]').textContent='Kaydet';$('#asset').value='';$('#qty').value='';$('#price').value='';$('#fee').value='0';$('#note').value='';setToday();}
+    function cur(){const q=($('#search').value||'').toLowerCase();return [...state.open.map(x=>({...x,kind:'open'})),...state.trade.map(x=>({...x,kind:'trade'}))].filter(x=>view==='all'||x.kind===view).filter(x=>!q||[x.asset,x.side,x.date,x.note,x.kind].join(' ').toLowerCase().includes(q));}
+    function pl(x){const qty=+x.qty||0, price=+x.price||0, fee=+x.fee||0; return x.side==='Short' ? qty*price-fee : -(qty*price+fee);}
+    function stats(){const op=state.open.length, tr=state.trade.length, cost=state.open.reduce((a,b)=>a+ (+b.qty||0)*(+b.price||0)+(+b.fee||0),0)+state.trade.reduce((a,b)=>a+ (+b.qty||0)*(+b.price||0)+(+b.fee||0),0); const p=state.trade.reduce((a,b)=>a+pl(b),0); $('#stOpen').textContent=op; $('#stTrade').textContent=tr; $('#stCost').textContent=fmt(cost); $('#stPL').textContent=(p>=0?'+':'')+fmt(p); $('#stPL').className='v '+(p>=0?'pos':'neg');}
+    function render(){stats(); const rows=cur(); const tb=$('#tbody'); if(!rows.length){tb.innerHTML='<tr><td class="empty" colspan="9">Kayıt yok</td></tr>'; return;} tb.innerHTML=rows.map(x=>`<tr><td><span class="tag">${x.kind==='open'?'Açık':'Geçmiş'}</span></td><td>${x.asset}</td><td>${x.side}</td><td>${fmt(x.qty)}</td><td>${fmt(x.price)}</td><td>${fmt(x.fee)}</td><td>${x.date}</td><td>${x.note||''}</td><td><div class="actions"><button data-edit="${x.id}">Düzenle</button><button data-del="${x.id}">Sil</button></div></td></tr>`).join('');}
+    function addOrUpdate(item){const arr=state[item.kind]; const i=arr.findIndex(x=>x.id===item.id); if(i>=0) arr[i]=item; else arr.unshift(item); save(); render();}
+    $('#entryForm').addEventListener('submit',e=>{e.preventDefault(); const item={id:edit?.id||uid(),kind:$('#mode').value,asset:$('#asset').value.trim(),qty:+$('#qty').value,price:+$('#price').value,fee:+$('#fee').value||0,date:$('#date').value,side:$('#side').value,note:$('#note').value.trim()}; addOrUpdate(item); resetForm();});
+    $('#demoBtn').addEventListener('click',()=>{const d=[{kind:'open',asset:'BTC',qty:0.42,price:65200,fee:12,date:'2026-06-15',side:'Long',note:'Ana pozisyon'},{kind:'open',asset:'ETH',qty:5,price:3450,fee:8,date:'2026-06-14',side:'Long',note:'Spot birikim'},{kind:'trade',asset:'TSLA',qty:10,price:180,fee:3,date:'2026-06-13',side:'Short',note:'Kısa vade trade'}]; d.forEach(x=>addOrUpdate({...x,id:uid()}));});
+    $('#clearBtn').addEventListener('click',()=>{if(confirm('Tüm kayıtlar silinsin mi?')){state={open:[],trade:[]}; save(); render(); resetForm();}});
+    $('#exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='portfolio-data.json'; a.click(); URL.revokeObjectURL(a.href);});
+    $('#importBtn').addEventListener('click',()=>$('#importFile').click());
+    $('#importFile').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f) return; try{const txt=await f.text(); const obj=JSON.parse(txt); if(!obj.open||!obj.trade) throw new Error('bad'); state={open:obj.open,trade:obj.trade}; save(); render();}catch(err){alert('JSON okunamadı');}});
+    $('#tbody').addEventListener('click',e=>{const del=e.target.closest('[data-del]'); const ed=e.target.closest('[data-edit]'); if(del){for(const k of ['open','trade']){const i=state[k].findIndex(x=>x.id===del.dataset.del); if(i>=0){state[k].splice(i,1); save(); render(); break;}}} if(ed){for(const k of ['open','trade']){const x=state[k].find(v=>v.id===ed.dataset.edit); if(x){edit=x; $('#mode').value=k; $('#entryForm button[type="submit"]').textContent='Güncelle'; $('#asset').value=x.asset; $('#qty').value=x.qty; $('#price').value=x.price; $('#fee').value=x.fee; $('#date').value=x.date; $('#side').value=x.side; $('#note').value=x.note||''; window.scrollTo({top:0,behavior:'smooth'}); break;}}});
+    $all('.tab[data-mode]').forEach(b=>b.addEventListener('click',()=>{$all('.tab[data-mode]').forEach(x=>x.classList.remove('active')); b.classList.add('active'); $('#mode').value=b.dataset.mode;}));
+    $all('.tab[data-view]').forEach(b=>b.addEventListener('click',()=>{$all('.tab[data-view]').forEach(x=>x.classList.remove('active')); b.classList.add('active'); view=b.dataset.view; render();}));
+    $('#search').addEventListener('input',render);
+    setToday(); render();
   </script>
 </body>
 </html>
