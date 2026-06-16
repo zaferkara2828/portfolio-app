@@ -3,114 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio Tracker</title>
-  <style>
-    :root{--bg:#0f172a;--panel:#111827;--card:#1f2937;--text:#e5e7eb;--muted:#94a3b8;--accent:#22c55e;--danger:#ef4444;--line:#334155;--input:#0b1220}
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#020617,#0f172a 40%,#111827);color:var(--text)}
-    .wrap{max-width:1400px;margin:0 auto;padding:24px} h1{margin:0 0 8px;font-size:28px} p{margin:0 0 16px;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:380px 1fr;gap:20px}@media (max-width:1100px){.grid{grid-template-columns:1fr}}
-    .card{background:rgba(17,24,39,.92);border:1px solid rgba(51,65,85,.8);border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.18);backdrop-filter:blur(10px)}
-    .card h2{margin:0 0 14px;font-size:18px} .row{display:grid;gap:10px;margin-bottom:12px}
-    label{font-size:12px;color:var(--muted)} input,select,textarea,button{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--input);color:var(--text);padding:11px 12px;font:inherit}
-    textarea{min-height:86px;resize:vertical} input::placeholder,textarea::placeholder{color:#64748b}
-    button{cursor:pointer;font-weight:600} .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary{background:linear-gradient(135deg,#16a34a,#22c55e);border:none;color:#052e16}.ghost{background:#0b1220}.danger{background:linear-gradient(135deg,#b91c1c,#ef4444);border:none;color:#fff}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.toolbar button{width:auto;padding:10px 14px}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
-    .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}.stat .k{font-size:12px;color:var(--muted)} .stat .v{margin-top:6px;font-size:22px;font-weight:700}
-    .tabs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}.tab{width:auto}.tab.active{background:#1d4ed8;border-color:#60a5fa}
-    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:16px} th,td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;font-size:14px} th{color:#cbd5e1;font-size:12px;text-transform:uppercase;letter-spacing:.04em;background:#0b1220;position:sticky;top:0}
-    .table-wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:16px} .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#0b1220;border:1px solid var(--line);font-size:12px;color:#cbd5e1}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{width:auto;padding:8px 10px;font-size:12px}
-    .pos{color:#86efac}.neg{color:#fca5a5}.muted{color:var(--muted)} .empty{padding:28px;text-align:center;color:var(--muted)}
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px} @media (max-width:560px){.split{grid-template-columns:1fr}}
-  </style>
+  <title>Hisse Fiyatı Çekme</title>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Portfolio Tracker</h1>
-    <p>Open positions, trade history, quick stats, edit/delete, JSON import/export, and local persistence.</p>
-    <div class="grid">
-      <section class="card">
-        <h2>Yeni kayıt</h2>
-        <div class="tabs">
-          <button class="tab active" data-mode="open">Açık Pozisyon</button>
-          <button class="tab" data-mode="trade">Geçmiş İşlem</button>
-        </div>
-        <form id="entryForm">
-          <input type="hidden" id="mode" value="open" />
-          <div class="row"><label>Varlık</label><input id="asset" placeholder="BTC, ETH, XAUUSD, AAPL..." required></div>
-          <div class="split">
-            <div class="row"><label>Miktar</label><input id="qty" type="number" step="any" placeholder="0.00" required></div>
-            <div class="row"><label>Fiyat</label><input id="price" type="number" step="any" placeholder="0.00" required></div>
-          </div>
-          <div class="split">
-            <div class="row"><label>Tarih</label><input id="date" type="date" required></div>
-            <div class="row"><label>Tür</label><select id="side"><option>Long</option><option>Short</option></select></div>
-          </div>
-          <div class="row"><label>Komisyon</label><input id="fee" type="number" step="any" placeholder="0.00" value="0"></div>
-          <div class="row"><label>Not</label><textarea id="note" placeholder="İsteğe bağlı not"></textarea></div>
-          <div class="btns">
-            <button class="primary" type="submit">Kaydet</button>
-            <button class="ghost" type="button" id="demoBtn">Demo Veri</button>
-          </div>
-        </form>
-        <div style="height:14px"></div>
-        <div class="btns">
-          <button class="ghost" id="exportBtn" type="button">JSON İndir</button>
-          <button class="ghost" id="importBtn" type="button">JSON Yükle</button>
-        </div>
-        <input id="importFile" type="file" accept="application/json" hidden />
-        <div style="height:10px"></div>
-        <button class="danger" id="clearBtn" type="button">Tüm Veriyi Sil</button>
-      </section>
-      <section class="card">
-        <h2>Özet</h2>
-        <div class="stats">
-          <div class="stat"><div class="k">Açık Pozisyon</div><div class="v" id="stOpen">0</div></div>
-          <div class="stat"><div class="k">İşlem Sayısı</div><div class="v" id="stTrade">0</div></div>
-          <div class="stat"><div class="k">Toplam Maliyet</div><div class="v" id="stCost">0</div></div>
-          <div class="stat"><div class="k">Tahmini P/L</div><div class="v" id="stPL">0</div></div>
-        </div>
-        <div class="toolbar">
-          <button class="tab active" data-view="all" type="button">Hepsi</button>
-          <button class="tab" data-view="open" type="button">Açık</button>
-          <button class="tab" data-view="trade" type="button">Geçmiş</button>
-          <input id="search" placeholder="Ara: varlık, not, tarih..." style="max-width:260px" />
-        </div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Tip</th><th>Varlık</th><th>Tür</th><th>Miktar</th><th>Fiyat</th><th>Komisyon</th><th>Tarih</th><th>Not</th><th>İşlem</th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table></div>
-      </section>
-    </div>
-  </div>
+  <h1>Güncel Hisse Fiyatı</h1>
+  <input id="symbol" placeholder="AAPL" value="AAPL" />
+  <button id="btn">Fiyat Getir</button>
+  <p id="result">Sonuç bekleniyor...</p>
+
   <script>
-    const K='portfolio_tracker_v3';
-    const $=s=>document.querySelector(s);
-    const $all=s=>Array.from(document.querySelectorAll(s));
-    let state=JSON.parse(localStorage.getItem(K)||'{"open":[],"trade":[]}');
-    let view='all'; let edit=null;
-    const fmt=n=>Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:8});
-    const save=()=>localStorage.setItem(K,JSON.stringify(state));
-    const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
-    const setToday=()=>$('#date').value=new Date().toISOString().slice(0,10);
-    function resetForm(){edit=null;$('#entryForm button[type="submit"]').textContent='Kaydet';$('#asset').value='';$('#qty').value='';$('#price').value='';$('#fee').value='0';$('#note').value='';setToday();}
-    function cur(){const q=($('#search').value||'').toLowerCase();return [...state.open.map(x=>({...x,kind:'open'})),...state.trade.map(x=>({...x,kind:'trade'}))].filter(x=>view==='all'||x.kind===view).filter(x=>!q||[x.asset,x.side,x.date,x.note,x.kind].join(' ').toLowerCase().includes(q));}
-    function pl(x){const qty=+x.qty||0, price=+x.price||0, fee=+x.fee||0; return x.side==='Short' ? qty*price-fee : -(qty*price+fee);}
-    function stats(){const op=state.open.length, tr=state.trade.length, cost=state.open.reduce((a,b)=>a+ (+b.qty||0)*(+b.price||0)+(+b.fee||0),0)+state.trade.reduce((a,b)=>a+ (+b.qty||0)*(+b.price||0)+(+b.fee||0),0); const p=state.trade.reduce((a,b)=>a+pl(b),0); $('#stOpen').textContent=op; $('#stTrade').textContent=tr; $('#stCost').textContent=fmt(cost); $('#stPL').textContent=(p>=0?'+':'')+fmt(p); $('#stPL').className='v '+(p>=0?'pos':'neg');}
-    function render(){stats(); const rows=cur(); const tb=$('#tbody'); if(!rows.length){tb.innerHTML='<tr><td class="empty" colspan="9">Kayıt yok</td></tr>'; return;} tb.innerHTML=rows.map(x=>`<tr><td><span class="tag">${x.kind==='open'?'Açık':'Geçmiş'}</span></td><td>${x.asset}</td><td>${x.side}</td><td>${fmt(x.qty)}</td><td>${fmt(x.price)}</td><td>${fmt(x.fee)}</td><td>${x.date}</td><td>${x.note||''}</td><td><div class="actions"><button data-edit="${x.id}">Düzenle</button><button data-del="${x.id}">Sil</button></div></td></tr>`).join('');}
-    function addOrUpdate(item){const arr=state[item.kind]; const i=arr.findIndex(x=>x.id===item.id); if(i>=0) arr[i]=item; else arr.unshift(item); save(); render();}
-    $('#entryForm').addEventListener('submit',e=>{e.preventDefault(); const item={id:edit?.id||uid(),kind:$('#mode').value,asset:$('#asset').value.trim(),qty:+$('#qty').value,price:+$('#price').value,fee:+$('#fee').value||0,date:$('#date').value,side:$('#side').value,note:$('#note').value.trim()}; addOrUpdate(item); resetForm();});
-    $('#demoBtn').addEventListener('click',()=>{const d=[{kind:'open',asset:'BTC',qty:0.42,price:65200,fee:12,date:'2026-06-15',side:'Long',note:'Ana pozisyon'},{kind:'open',asset:'ETH',qty:5,price:3450,fee:8,date:'2026-06-14',side:'Long',note:'Spot birikim'},{kind:'trade',asset:'TSLA',qty:10,price:180,fee:3,date:'2026-06-13',side:'Short',note:'Kısa vade trade'}]; d.forEach(x=>addOrUpdate({...x,id:uid()}));});
-    $('#clearBtn').addEventListener('click',()=>{if(confirm('Tüm kayıtlar silinsin mi?')){state={open:[],trade:[]}; save(); render(); resetForm();}});
-    $('#exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='portfolio-data.json'; a.click(); URL.revokeObjectURL(a.href);});
-    $('#importBtn').addEventListener('click',()=>$('#importFile').click());
-    $('#importFile').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f) return; try{const txt=await f.text(); const obj=JSON.parse(txt); if(!obj.open||!obj.trade) throw new Error('bad'); state={open:obj.open,trade:obj.trade}; save(); render();}catch(err){alert('JSON okunamadı');}});
-    $('#tbody').addEventListener('click',e=>{const del=e.target.closest('[data-del]'); const ed=e.target.closest('[data-edit]'); if(del){for(const k of ['open','trade']){const i=state[k].findIndex(x=>x.id===del.dataset.del); if(i>=0){state[k].splice(i,1); save(); render(); break;}}} if(ed){for(const k of ['open','trade']){const x=state[k].find(v=>v.id===ed.dataset.edit); if(x){edit=x; $('#mode').value=k; $('#entryForm button[type="submit"]').textContent='Güncelle'; $('#asset').value=x.asset; $('#qty').value=x.qty; $('#price').value=x.price; $('#fee').value=x.fee; $('#date').value=x.date; $('#side').value=x.side; $('#note').value=x.note||''; window.scrollTo({top:0,behavior:'smooth'}); break;}}});
-    $all('.tab[data-mode]').forEach(b=>b.addEventListener('click',()=>{$all('.tab[data-mode]').forEach(x=>x.classList.remove('active')); b.classList.add('active'); $('#mode').value=b.dataset.mode;}));
-    $all('.tab[data-view]').forEach(b=>b.addEventListener('click',()=>{$all('.tab[data-view]').forEach(x=>x.classList.remove('active')); b.classList.add('active'); view=b.dataset.view; render();}));
-    $('#search').addEventListener('input',render);
-    setToday(); render();
+    const API_KEY = "BURAYA_API_KEY";
+    const result = document.getElementById("result");
+    const symbolInput = document.getElementById("symbol");
+    const btn = document.getElementById("btn");
+
+    async function getStockPrice(symbol) {
+      const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(symbol)}&apikey=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const quote = data["Global Quote"];
+      if (!quote || !quote["05. price"]) {
+        throw new Error("Fiyat verisi bulunamadı");
+      }
+
+      return {
+        symbol: quote["01. symbol"],
+        price: quote["05. price"],
+        change: quote["09. change"],
+        changePercent: quote["10. change percent"]
+      };
+    }
+
+    btn.addEventListener("click", async () => {
+      const symbol = symbolInput.value.trim().toUpperCase();
+      if (!symbol) return;
+
+      result.textContent = "Yükleniyor...";
+
+      try {
+        const stock = await getStockPrice(symbol);
+        result.textContent =
+          `${stock.symbol} fiyatı: ${stock.price} | Değişim: ${stock.change} | Yüzde: ${stock.changePercent}`;
+      } catch (err) {
+        result.textContent = "Hata: " + err.message;
+      }
+    });
   </script>
 </body>
 </html>
